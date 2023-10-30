@@ -1,0 +1,13 @@
+---
+- hosts: dev
+  become: yes
+  remote_user: ubuntu
+  tasks:
+    - name: Installing nginx
+      apt:
+        name: nginx
+        state: latest
+        update_cache: yes
+  
+    - name: Uploading webpage
+      copy: src=./index.html dest=/var/www/html mode=0644
