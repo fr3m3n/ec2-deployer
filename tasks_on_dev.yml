@@ -10,4 +10,8 @@
         update_cache: yes
   
     - name: Uploading webpage
-      copy: src=./index.html dest=/var/www/html mode=0644
+      synchronize:
+        src: ../root/
+        dest: /var/www/html
+        mode: push
+        recursive: yes
