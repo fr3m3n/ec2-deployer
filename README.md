@@ -25,11 +25,14 @@
   - Specializes in deploying local web pages to the configured EC2 instances, facilitating fast and reliable web content hosting on the AWS cloud.
 
 
+
 ## Prerequisites
 
 - Ansible installed
 - Proper AWS credentials configured
 - Necessary permissions in AWS for EC2 provisioning and key pair management
+
+
 
 ## Usage
 
@@ -38,7 +41,7 @@
 
 2. **Clone the Repository:**  
    ```bash
-   git clone https://github.com/yourusername/ec2-deployer.git
+   git clone https://github.com/fr3m3n/ec2-deployer
 
 3. **Navigate to the Project Directory:**
    ```bash
