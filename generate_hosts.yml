@@ -1,0 +1,57 @@
+---
+- name: Generate SSH Key
+  hosts: localhost
+  tasks:
+    - name: Check if SSH key already exists
+      stat:
+        path: ./dev_key
+      register: ssh_key_check
+
+    - name: Generate SSH key
+      openssh_keypair:
+        path: ./dev_key
+        size: 4096
+      when: not ssh_key_check.stat.exists
+      register: ssh_key
+
+
+- name: Upload RSA Key to AWS
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Uploading the RSA key to AWS
+      amazon.aws.ec2_key:
+        name: dev_keypair
+        key_material: "{{ lookup('file', 'dev_key.pub') }}"
+        state: present
+
+
+- hosts: localhost
+  tasks:
+    - name: launch ec2
+      amazon.aws.ec2_instance:
+        name: "dinamic-web"
+        key_name: dev_keypair
+        availability_zone: us-east-1a
+        instance_type: t2.micro
+        network:
+          assign_public_ip: true
+        image_id: ami-0261755bbcb8c4a84
+      register: ec2_info
+
+    - name: Wait for SSH to become available
+      wait_for:
+        host: "{{ ec2_info.instances[0].public_ip_address }}"
+        port: 22
+        state: started
+        delay: 10  # Wait for 10 seconds before starting the check
+        timeout: 300  # Wait up to 300 seconds for the condition to be met
+
+    - name: Save public IP as fact
+      set_fact:
+        ec2_public_ip: "{{ ec2_info.instances[0].public_ip_address }}"
+
+    - name: Generate hosts file from template
+      template:
+        src: hosts.j2
+        dest: ./hosts
